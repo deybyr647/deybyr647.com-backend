@@ -18,7 +18,6 @@ const handler = async (req: VercelRequest, res: VercelResponse) => {
   // Close the connection
   await client.close();
 
-
   res.status(200).json({
     body: req.body,
     query: req.query,

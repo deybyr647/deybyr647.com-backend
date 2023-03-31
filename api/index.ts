@@ -1,7 +1,9 @@
 import express, { Express, Request, Response } from "express";
+import { v4 } from "uuid";
 
-const app: Express = express();
-const { v4 } = require("uuid");
+import client from "../util/mongo-config";
+
+const app = express();
 
 /* GET ENDPOINTS */
 app.get("/api", (req: Request, res: Response) => {
@@ -14,6 +16,34 @@ app.get("/api", (req: Request, res: Response) => {
 app.get("/api/item/:slug", (req: Request, res: Response) => {
   const { slug } = req.params;
   res.end(`Item: ${slug}`);
+});
+
+app.get("/api/projects/:project", async (req: Request, res: Response) => {
+  const { project } = req.params;
+
+  // Connect to the MongoDB database
+  await client.connect();
+
+  // Get the database
+  const db = client.db("deybyr647-portfolio");
+
+  // Get the collection
+  const projects = db.collection("projects");
+
+  // Get document where the project name is equal to the project parameter
+  let result = await projects.findOne({ name: project });
+
+  await client.close();
+
+  res.status(200).json({
+    body: req.body,
+    query: req.query,
+    cookies: req.cookies,
+    key: process.env.API_KEY,
+    message: "Here's the project you requested!",
+    method: req.method,
+    queriedProject: result,
+  });
 });
 
 /* POST ENDPOINTS */
